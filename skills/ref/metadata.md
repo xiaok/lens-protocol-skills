@@ -4,6 +4,8 @@
 
 All builder functions auto-set `$schema` and `id` (defaults to UUID). Branded types (`URI`, `Markdown`, `Tag`, `Locale`) accept plain strings at the builder level.
 
+Use `MetadataAttributeType.STRING | DATE | BOOLEAN | NUMBER | JSON` for `attributes[].type`; do not hand-write `"String"`-style literals.
+
 ## Entity Metadata Builders
 
 ### `account(options)`
@@ -56,7 +58,7 @@ graph({
 
 ```ts
 group({
-  name: string,                // REQUIRED
+  name: string,                // REQUIRED - 1-50 chars, alphanumeric + hyphen
   description?: string,
   icon?: string,               // URI
   coverPicture?: string,       // URI
@@ -257,6 +259,27 @@ transaction({
   attachments?: AnyMedia[],
 })
 ```
+
+---
+
+## Action / Rule Metadata Builders
+
+Use these when you are defining custom on-chain extensibility, not ordinary posts/accounts.
+
+### `action(options)`
+
+Builds metadata for a custom action contract. Include `name`, `description`, `authors`, `source`, and parameter descriptors for `configure` / `execute` when needed.
+
+### Rule metadata builders
+
+- `feedRule(options)`
+- `followRule(options)`
+- `graphRule(options)`
+- `groupRule(options)`
+- `namespaceRule(options)`
+- `postRule(options)`
+
+These builders describe custom rule contracts and their parameter surfaces. Use them when your product deploys or integrates non-default rules and the agent needs to understand how rule params are encoded.
 
 ### `checkingIn(options)`
 

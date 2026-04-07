@@ -85,7 +85,9 @@ const customClient = PublicClient.create({
 // Step 4: fetchAccount now returns your custom shape
 async function demo() {
   const result = await fetchAccount(customClient, {
-    username: "lens/alice",
+    username: {
+      localName: "alice",
+    },
   });
 
   if (result.isErr()) {

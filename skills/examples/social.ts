@@ -101,7 +101,7 @@ async function getFollowData() {
 
   // Get mutual followers (followers you also follow)
   const mutual = await fetchFollowersYouKnow(client, {
-    account: evmAddress("0xSOME_ACCOUNT"),
+    target: evmAddress("0xSOME_ACCOUNT"),
     observer: evmAddress("0xMY_ACCOUNT"),
   });
 
@@ -115,7 +115,7 @@ async function getFollowData() {
     ],
   });
   if (status.isOk()) {
-    console.log("Is following:", status.value[0].isFollowing);
+    console.log("Is following (on-chain):", status.value[0].isFollowing.onChain);
   }
 }
 

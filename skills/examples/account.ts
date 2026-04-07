@@ -5,7 +5,12 @@
  * manage account managers, block/mute, follow rules.
  */
 
-import { PublicClient, testnet, evmAddress } from "@lens-protocol/client";
+import {
+  PublicClient,
+  testnet,
+  evmAddress,
+  TokenStandard,
+} from "@lens-protocol/client";
 import {
   fetchAccount,
   fetchAccounts,
@@ -21,7 +26,10 @@ import {
   updateAccountFollowRules,
 } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
-import { account as accountMetadata } from "@lens-protocol/metadata";
+import {
+  account as accountMetadata,
+  MetadataAttributeType,
+} from "@lens-protocol/metadata";
 import { StorageClient, immutable } from "@lens-chain/storage-client";
 
 // ============================================================
@@ -36,7 +44,9 @@ const client = PublicClient.create({
 async function getAccount() {
   // By username
   const result = await fetchAccount(client, {
-    username: "lens/alice",
+    username: {
+      localName: "alice",
+    },
   });
 
   if (result.isErr()) {
@@ -154,8 +164,16 @@ async function updateProfile(sessionClient: any, walletClient: any) {
     picture: "lens://my-avatar-uri",
     coverPicture: "lens://my-cover-uri",
     attributes: [
-      { key: "website", type: "String", value: "https://alice.xyz" },
-      { key: "x", type: "String", value: "alice_dev" },
+      {
+        key: "website",
+        type: MetadataAttributeType.STRING,
+        value: "https://alice.xyz",
+      },
+      {
+        key: "x",
+        type: MetadataAttributeType.STRING,
+        value: "alice_dev",
+      },
     ],
   });
 
@@ -231,15 +249,21 @@ async function blockAndMute(sessionClient: any, walletClient: any) {
 
 async function setFollowRules(sessionClient: any, walletClient: any) {
   const result = await updateAccountFollowRules(sessionClient, {
-    // Example: add a token-gated follow rule
-    // The exact rule config depends on the deployed rule contract
-    toAdd: [
-      {
-        // rule contract address
-        address: evmAddress("0xFOLLOW_RULE_CONTRACT"),
-        configData: "0x...", // ABI-encoded config
-      },
-    ],
+    // Example: require holding at least 1 ERC20 token to follow
+    toAdd: {
+      required: [
+        {
+          tokenGatedRule: {
+            token: {
+              currency: evmAddress("0xFOLLOW_GATE_TOKEN"),
+              value: "1",
+              standard: TokenStandard.Erc20,
+            },
+          },
+        },
+      ],
+      anyOf: [],
+    },
     toRemove: [],
   }).andThen(handleOperationWith(walletClient));
 

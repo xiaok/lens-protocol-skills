@@ -5,7 +5,12 @@
  * fetch posts, reactions, bookmarks, timeline.
  */
 
-import { PublicClient, testnet, evmAddress, uri } from "@lens-protocol/client";
+import {
+  PublicClient,
+  testnet,
+  evmAddress,
+  PostReferenceType,
+} from "@lens-protocol/client";
 import {
   post,
   editPost,
@@ -326,7 +331,7 @@ async function listPosts() {
 async function getComments() {
   const result = await fetchPostReferences(client, {
     referencedPost: "42",
-    // filter: { type: "COMMENT" }, // optional filter
+    referenceTypes: [PostReferenceType.CommentOn],
   });
 
   if (result.isErr()) return;
