@@ -2,9 +2,98 @@
 
 `@lens-protocol/graphql` — All queries, mutations, and key fragments.
 
-Mutations typically return a union: `SuccessResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail | [DomainError]`.
+Many write mutations return a union such as `SuccessResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail | [DomainError]`. Some lighter mutations instead return `void` or a small response object.
 
 Paginated queries return `{ items: T[], pageInfo: { prev: Cursor | null, next: Cursor | null } }`.
+
+Read this file together with `graphql-schema.graphql`:
+
+- `graphql.md` tells you which operation names matter and what their requests look like.
+- `graphql-schema.graphql` gives a compact SDL-style snapshot for common Lens operations.
+
+---
+
+## Exact Request Shapes You Will Actually Need
+
+These are the places where agents most often guess wrong.
+
+### Account lookup by username
+
+```ts
+fetchAccount(client, {
+  username: {
+    localName: "alice",
+    // namespace?: evmAddress("0x...")
+  },
+})
+```
+
+Do not pass `"lens/alice"` as a single string to `fetchAccount`.
+
+### Create account with username
+
+```ts
+createAccountWithUsername(sessionClient, {
+  username: {
+    localName: "alice",
+    // namespace?: evmAddress("0x...")
+  },
+  metadataUri: "lens://...",
+  // owner?: evmAddress("0x...")
+  // accountManager?: [evmAddress("0x...")]
+  // enableSignless?: true
+})
+```
+
+### Followers you know
+
+```ts
+fetchFollowersYouKnow(client, {
+  observer: evmAddress("0xMY_ACCOUNT"),
+  target: evmAddress("0xTARGET_ACCOUNT"),
+  // filter?: { graphs: [{ globalGraph: true }] }
+})
+```
+
+The field name is `target`, not `account`.
+
+### Post references
+
+```ts
+fetchPostReferences(client, {
+  referencedPost: "42",
+  referenceTypes: ["COMMENT"],
+  // relevancyFilter?: ...
+  // visibilityFilter?: ...
+})
+```
+
+`referenceTypes` is required.
+
+### Update account follow rules
+
+```ts
+updateAccountFollowRules(sessionClient, {
+  toAdd: {
+    required: [
+      {
+        tokenGatedRule: {
+          token: {
+            currency: evmAddress("0xTOKEN"),
+            value: "1",
+            standard: "ERC20",
+          },
+        },
+      },
+    ],
+    anyOf: [],
+  },
+  toRemove: [],
+  // graph?: evmAddress("0xCUSTOM_GRAPH")
+})
+```
+
+Current SDK shape is nested under `required` / `anyOf`; it is not a flat `{ address, configData }[]`.
 
 ---
 
