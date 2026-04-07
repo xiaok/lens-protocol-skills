@@ -1,0 +1,304 @@
+"""
+Compact schema snapshot for the most common Lens Protocol reads/writes.
+This is a curated SDL-style reference, not the full upstream schema.
+Use it to remember exact input field names and top-level operation names.
+"""
+
+scalar EvmAddress
+scalar PostId
+scalar URI
+scalar Cursor
+scalar TxHash
+scalar RuleId
+scalar BigDecimal
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  account(request: AccountRequest!): Account
+  accounts(request: AccountsRequest): PaginatedAccountResult!
+  followers(request: FollowersRequest!): PaginatedFollowerResult!
+  following(request: FollowingRequest!): PaginatedFollowingResult!
+  followersYouKnow(request: FollowersYouKnowRequest!): PaginatedFollowerResult!
+  followStatus(request: FollowStatusRequest!): [FollowStatusResult!]!
+  post(request: PostRequest!): AnyPost
+  posts(request: PostsRequest!): PaginatedPostResult!
+  postReferences(request: PostReferencesRequest!): PaginatedPostResult!
+  timeline(request: TimelineRequest!): PaginatedTimelineItemResult!
+  notifications(request: NotificationsRequest): PaginatedNotificationResult!
+  group(request: GroupRequest!): Group
+  groups(request: GroupsRequest): PaginatedGroupResult!
+  groupMembers(request: GroupMembersRequest!): PaginatedGroupMemberResult!
+  groupStats(request: GroupStatsRequest!): GroupStatsResponse
+  namespace(request: NamespaceRequest!): UsernameNamespace
+  namespaces(request: NamespacesRequest!): PaginatedNamespaceResult!
+}
+
+type Mutation {
+  createAccountWithUsername(request: CreateAccountWithUsernameRequest!): CreateAccountWithUsernameResult!
+  setAccountMetadata(request: SetAccountMetadataRequest!): SetAccountMetadataResult!
+  enableSignless: EnableSignlessResult!
+  post(request: CreatePostRequest!): PostResult!
+  repost(request: CreateRepostRequest!): PostResult!
+  editPost(request: EditPostRequest!): PostResult!
+  deletePost(request: DeletePostRequest!): DeletePostResult!
+  follow(request: CreateFollowRequest!): FollowResult!
+  unfollow(request: CreateUnfollowRequest!): UnfollowResult!
+  createGroup(request: CreateGroupRequest!): CreateGroupResult!
+  joinGroup(request: JoinGroupRequest!): JoinGroupResult!
+  leaveGroup(request: LeaveGroupRequest!): LeaveGroupResult!
+  updateAccountFollowRules(request: UpdateAccountFollowRulesRequest!): UpdateAccountFollowRulesResult!
+}
+
+input UsernameInput {
+  namespace: EvmAddress
+  localName: String!
+}
+
+input AccountRequest {
+  txHash: TxHash
+  legacyProfileId: String
+  username: UsernameInput
+  address: EvmAddress
+}
+
+input CreateAccountWithUsernameRequest {
+  username: UsernameInput!
+  metadataUri: URI!
+  owner: EvmAddress
+  accountManager: [EvmAddress!]
+  enableSignless: Boolean
+}
+
+input SetAccountMetadataRequest {
+  metadataUri: URI!
+}
+
+input FollowersYouKnowRequest {
+  observer: EvmAddress!
+  target: EvmAddress!
+  cursor: Cursor
+}
+
+input FollowStatusPair {
+  account: EvmAddress!
+  follower: EvmAddress!
+  graph: EvmAddress
+}
+
+input FollowStatusRequest {
+  pairs: [FollowStatusPair!]!
+}
+
+enum PostReferenceType {
+  COMMENT
+  QUOTE
+}
+
+input PostReferencesRequest {
+  referencedPost: PostId!
+  referenceTypes: [PostReferenceType!]!
+  cursor: Cursor
+}
+
+input CreatePostRequest {
+  contentUri: URI!
+  commentOn: ReferencedPostInput
+  quoteOf: ReferencedPostInput
+}
+
+input ReferencedPostInput {
+  post: PostId!
+}
+
+input EditPostRequest {
+  post: PostId!
+  contentUri: URI!
+}
+
+input DeletePostRequest {
+  post: PostId!
+}
+
+input CreateFollowRequest {
+  account: EvmAddress!
+  graph: EvmAddress
+}
+
+input CreateUnfollowRequest {
+  account: EvmAddress!
+  graph: EvmAddress
+}
+
+enum TokenStandard {
+  ERC20
+  ERC721
+  ERC1155
+}
+
+input TokenAmountInput {
+  currency: EvmAddress!
+  value: BigDecimal!
+  standard: TokenStandard!
+  typeId: String
+}
+
+input AccountFollowRuleInput {
+  tokenGatedRule: TokenGatedRuleInput
+  simplePaymentRule: SimplePaymentRuleInput
+  unknownRule: UnknownRuleInput
+}
+
+input TokenGatedRuleInput {
+  token: TokenAmountInput!
+}
+
+input SimplePaymentRuleInput {
+  recipient: EvmAddress!
+  cost: FungibleAmountInput!
+}
+
+input FungibleAmountInput {
+  currency: EvmAddress!
+  value: BigDecimal!
+}
+
+input UnknownRuleInput {
+  address: EvmAddress!
+}
+
+input AccountFollowRulesToAdd {
+  required: [AccountFollowRuleInput!]
+  anyOf: [AccountFollowRuleInput!]
+}
+
+input UpdateAccountFollowRulesRequest {
+  graph: EvmAddress
+  toAdd: AccountFollowRulesToAdd
+  toRemove: [RuleId!]
+}
+
+type PaginatedResultInfo {
+  prev: Cursor
+  next: Cursor
+}
+
+type Account {
+  address: EvmAddress!
+}
+
+type Group {
+  address: EvmAddress!
+}
+
+type UsernameNamespace {
+  address: EvmAddress!
+}
+
+type AnyPost {
+  id: PostId!
+}
+
+type TimelineItem {
+  id: ID!
+}
+
+type Notification {
+  __typename: String!
+}
+
+type GroupMember {
+  account: Account!
+}
+
+type GroupStatsResponse {
+  totalMembers: Int!
+}
+
+type FollowStatusBooleanValue {
+  optimistic: Boolean!
+  onChain: Boolean!
+}
+
+type FollowStatusResult {
+  account: EvmAddress!
+  follower: EvmAddress!
+  graph: EvmAddress!
+  isFollowing: FollowStatusBooleanValue!
+}
+
+type PaginatedAccountResult {
+  items: [Account!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedFollowerResult {
+  items: [Account!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedFollowingResult {
+  items: [Account!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedPostResult {
+  items: [AnyPost!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedTimelineItemResult {
+  items: [TimelineItem!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedNotificationResult {
+  items: [Notification!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedGroupResult {
+  items: [Group!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedGroupMemberResult {
+  items: [GroupMember!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedNamespaceResult {
+  items: [UsernameNamespace!]!
+  pageInfo: PaginatedResultInfo!
+}
+
+union CreateAccountWithUsernameResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union SetAccountMetadataResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union PostResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union DeletePostResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union FollowResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union UnfollowResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union CreateGroupResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union JoinGroupResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union LeaveGroupResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union UpdateAccountFollowRulesResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+union EnableSignlessResult = OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail
+
+type OperationResponse {
+  hash: TxHash!
+}
+
+type SponsoredTransactionRequest {
+  reason: String!
+}
+
+type SelfFundedTransactionRequest {
+  reason: String!
+}
+
+type TransactionWillFail {
+  reason: String!
+}
