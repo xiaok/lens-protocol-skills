@@ -95,6 +95,58 @@ updateAccountFollowRules(sessionClient, {
 
 Current SDK shape is nested under `required` / `anyOf`; it is not a flat `{ address, configData }[]`.
 
+### Reading boundaries for content lists
+
+```ts
+// By author
+fetchPosts(client, {
+  filter: {
+    authors: [evmAddress("0xAUTHOR")],
+  },
+})
+
+// By a specific custom Feed
+fetchPosts(client, {
+  filter: {
+    feeds: [{ feed: evmAddress("0xFEED") }],
+  },
+})
+
+// By an App's default/global feed surface
+fetchPosts(client, {
+  filter: {
+    feeds: [{ app: evmAddress("0xAPP") }],
+  },
+})
+
+// By metadata tags
+fetchPosts(client, {
+  filter: {
+    metadata: {
+      tags: { oneOf: ["guide", "gaming"] },
+    },
+  },
+})
+```
+
+These axes mean different things. `authors` is account scope, `feeds` is distribution scope, `apps`/`feeds.app` is app scope, and `tags` is classification. Do not use a tag filter as a substitute for account/feed/app boundaries unless the product intentionally works that way.
+
+### Confirming newly created entities
+
+```ts
+// After createAccountWithUsername(...)
+fetchAccount(client, {
+  username: { localName: "alice" },
+})
+
+// After post(...).andThen(handleOperationWith(...))
+transactionStatus(client, {
+  txHash: "0x...",
+})
+```
+
+For create flows, prefer re-reading the specific entity you just created, or polling the transaction indexing status, rather than sleeping for a fixed time and then taking the first item from a paginated list.
+
 ---
 
 ## Account Operations

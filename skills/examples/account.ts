@@ -41,6 +41,10 @@ const client = PublicClient.create({
   origin: "https://myapp.xyz",
 });
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function getAccount() {
   // By username
   const result = await fetchAccount(client, {
@@ -111,6 +115,28 @@ async function getMyAccounts() {
   for (const item of result.value.items) {
     console.log(item); // AccountManaged or AccountOwned
   }
+
+  // Avoid assuming items[0] is "the newest account".
+  // This query tells you which accounts are available to the wallet,
+  // not which account was just created in the previous step.
+}
+
+async function waitForAccountByUsername(localName: string, attempts = 20) {
+  // The sleep below is only a polling interval to avoid hammering the API.
+  // The confirmation condition is fetchAccount(username) returning the target account.
+  for (let i = 0; i < attempts; i++) {
+    const result = await fetchAccount(client, {
+      username: { localName },
+    });
+
+    if (result.isOk() && result.value) {
+      return result.value;
+    }
+
+    await sleep(1500);
+  }
+
+  throw new Error(`Account ${localName} was not indexed in time`);
 }
 
 // ============================================================
@@ -123,6 +149,7 @@ async function getMyAccounts() {
 
 async function createAccount(sessionClient: any, walletClient: any) {
   const storage = StorageClient.create();
+  const localName = `alice-${Date.now()}`;
 
   // Step 1: Build account metadata
   const metadata = accountMetadata({
@@ -138,7 +165,7 @@ async function createAccount(sessionClient: any, walletClient: any) {
 
   // Step 3: Create account with username
   const result = await createAccountWithUsername(sessionClient, {
-    username: { localName: "alice" },
+    username: { localName },
     metadataUri: uri,
   }).andThen(handleOperationWith(walletClient));
 
@@ -148,6 +175,10 @@ async function createAccount(sessionClient: any, walletClient: any) {
   }
 
   console.log("Account created! TX:", result.value);
+
+  // Step 4: Confirm the exact account that was created
+  const account = await waitForAccountByUsername(localName);
+  console.log("Indexed account:", account.address, account.username?.value);
 }
 
 // ============================================================

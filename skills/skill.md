@@ -14,7 +14,7 @@ description: 在构建基于 Lens Protocol 的社交产品时使用。覆盖 Len
 1. 先看 `ref/metadata.md`，确认应该生成哪种 metadata。
 2. 再看 `ref/graphql.md` 和 `ref/graphql-schema.graphql`，确认请求形状、分页和返回 union。
 3. 读 `examples/client-setup.ts` 与 `examples/auth.ts`，确定客户端与登录模式。
-4. 再按任务读取 `examples/account.ts`、`examples/post.ts`、`examples/social.ts`、`examples/storage.ts`。
+4. 再按任务读取 `examples/account.ts`、`examples/post.ts`、`examples/content-read.ts`、`examples/social.ts`、`examples/storage.ts`。
 
 ## 核心模块
 
@@ -120,6 +120,20 @@ description: 在构建基于 Lens Protocol 的社交产品时使用。覆盖 Len
 - 先决定 metadata 类型，再决定 mutation 参数，不要反过来猜。
 - `$schema` 决定 metadata 语义，`lens` 节点保存实际数据。
 
+### 6. 先定义读取边界，再写列表页
+
+- `author`、`feed`、`app`、`tags` 是不同维度，不要混成一个“来源”概念。
+- `authors` 适合“某个账户发的内容”；`feeds` 适合“某个 Feed 里的内容”；`apps` 适合“某个 App 关联的内容”；`tags` 更适合分类与发现。
+- 如果产品有“这是我的内容 / 这是某个专区内容 / 这是某个 app 内容”的说法，读取条件必须和这个产品定义一一对应。
+- 同一个页面可以叠加多个过滤维度，但要明确哪一个是主边界，哪一个只是补充筛选。
+
+### 7. Fragment 要和消费代码一起设计
+
+- 先写页面或接口需要的字段，再裁 fragment，不要先极限精简 fragment 然后在消费层猜字段。
+- 如果 UI 依赖 `metadata.title`、`metadata.image`、`stats`、`username`、`picture`，这些字段必须在 fragment 里显式选出。
+- `AnyPost`、`AccountAvailable` 这类返回值常带 union/多态，消费层先判断 `__typename` 再访问特定字段。
+- 发布脚本、列表读取、详情读取如果共享同一批 metadata 字段，最好共用同一套 view-model 映射约定。
+
 ## 技术栈
 
 ### 推荐依赖
@@ -161,6 +175,7 @@ npm install ethers
 - `examples/auth.ts`：四种登录模式、会话恢复、切换账户、signless
 - `examples/account.ts`：创建账户、查询账户、更新资料、manager、follow rules
 - `examples/post.ts`：发帖、评论、引用、转发、编辑、删除、时间线、反应、书签
+- `examples/content-read.ts`：列表页/详情页读取、过滤边界组合、分页与 view-model 映射
 - `examples/social.ts`：关注、群组、通知、推荐流
 - `examples/storage.ts`：Grove 上传、更新、删除、ACL、`lens://` 解析
 - `ref/metadata.md`：metadata builder 与 schema 选择
@@ -176,3 +191,15 @@ npm install ethers
 4. `lens://` 可通过 `StorageClient.resolve()` 转成可 fetch 的 HTTP 地址。
 5. 分页是 cursor-based pagination，继续翻页时传 `pageInfo.next`。
 6. username 请求、follow rules、post references 这类接口的参数结构比“看起来的字符串”更严格，优先参考 `ref/graphql.md` 里的准确形状。
+
+## 实现一致性清单
+
+在开始写页面或脚本前，先快速自检这几件事：
+
+1. 列表页的筛选条件，是否真的对应产品定义的“来源”或“归属”。
+2. 详情页的定位方式，是否和列表页输出的 `id` / `slug` / route 参数一致。
+3. 发布脚本写入的 metadata 字段，是否都被前端 fragment 和映射层正确读取。
+4. fragment 里选出的字段，是否足够支撑页面展示，不需要消费层再猜形状。
+5. 创建 Account / Post 后，是否用精确目标做确认，而不是固定 `sleep` 加“取第一项”。
+6. 页面上承诺支持的内容能力，例如标题、图片、标签、markdown、统计数，是否都能从当前 metadata 与 fragment 稳定得到。
+7. 分页、筛选、详情读取是否共享同一套边界定义，避免首页和详情页看的不是同一批内容。

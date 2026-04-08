@@ -21,6 +21,7 @@ import {
   fetchTimeline,
   fetchPostReferences,
   fetchPostBookmarks,
+  transactionStatus,
   addReaction,
   undoReaction,
   bookmarkPost,
@@ -46,6 +47,34 @@ const client = PublicClient.create({
   origin: "https://myapp.xyz",
 });
 const storage = StorageClient.create();
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForTransactionToIndex(txHash: string, attempts = 20) {
+  // The sleep below is only a polling interval to avoid hammering the API.
+  // The confirmation condition is transactionStatus(txHash) reaching a terminal indexed state.
+  for (let i = 0; i < attempts; i++) {
+    const result = await transactionStatus(client, { txHash });
+
+    if (result.isErr()) {
+      throw result.error;
+    }
+
+    if (result.value.__typename === "FinishedTransactionStatus") {
+      return result.value;
+    }
+
+    if (result.value.__typename === "FailedTransactionStatus") {
+      throw new Error(result.value.reason);
+    }
+
+    await sleep(1500);
+  }
+
+  throw new Error(`Transaction ${txHash} was not indexed in time`);
+}
 
 // ============================================================
 // 1. Create a Text-Only Post
@@ -73,6 +102,8 @@ async function createTextPost(sessionClient: any, walletClient: any) {
   }
 
   console.log("Post created, tx:", result.value);
+  await waitForTransactionToIndex(result.value);
+  console.log("Post indexed");
 }
 
 // ============================================================
@@ -138,8 +169,16 @@ async function createArticle(sessionClient: any, walletClient: any) {
     acl: immutable(37111),
   });
 
-  await post(sessionClient, { contentUri })
+  const result = await post(sessionClient, { contentUri })
     .andThen(handleOperationWith(walletClient));
+
+  if (result.isErr()) {
+    console.error(result.error);
+    return;
+  }
+
+  await waitForTransactionToIndex(result.value);
+  console.log("Article indexed, tx:", result.value);
 }
 
 // ============================================================
