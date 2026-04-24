@@ -1,7 +1,7 @@
 """
-Compact schema snapshot for the most common Lens Protocol reads/writes.
+Compact schema snapshot for common Lens Protocol reads and writes.
 This is a curated SDL-style reference, not the full upstream schema.
-Use it to remember exact input field names and top-level operation names.
+Use it to check input field names and top-level operation names.
 """
 
 scalar EvmAddress

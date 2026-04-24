@@ -1,8 +1,8 @@
 # GraphQL Operations Reference
 
-`@lens-protocol/graphql` — All queries, mutations, and key fragments.
+Compact lookup for Lens GraphQL operation names, request shapes, and key fragments.
 
-Many write mutations return a union such as `SuccessResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail | [DomainError]`. Some lighter mutations instead return `void` or a small response object.
+Many write mutations return a union such as `SuccessResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail | [DomainError]`. Lighter mutations may return `void` or a small response object.
 
 Paginated queries return `{ items: T[], pageInfo: { prev: Cursor | null, next: Cursor | null } }`.
 
@@ -13,9 +13,9 @@ Read this file together with `graphql-schema.graphql`:
 
 ---
 
-## Exact Request Shapes You Will Actually Need
+## Request Shapes Worth Checking
 
-These are the places where agents most often guess wrong.
+These are the request shapes where field names are easy to mix up.
 
 ### Account lookup by username
 
@@ -28,7 +28,7 @@ fetchAccount(client, {
 })
 ```
 
-Do not pass `"lens/alice"` as a single string to `fetchAccount`.
+Pass username as structured input. A single `"lens/alice"` string is not the right shape for `fetchAccount`.
 
 ### Create account with username
 
@@ -93,7 +93,7 @@ updateAccountFollowRules(sessionClient, {
 })
 ```
 
-Current SDK shape is nested under `required` / `anyOf`; it is not a flat `{ address, configData }[]`.
+The current SDK nests rules under `required` / `anyOf`; it is not a flat `{ address, configData }[]`.
 
 ### Reading boundaries for content lists
 
@@ -129,7 +129,7 @@ fetchPosts(client, {
 })
 ```
 
-These axes mean different things. `authors` is account scope, `feeds` is distribution scope, `apps`/`feeds.app` is app scope, and `tags` is classification. Do not use a tag filter as a substitute for account/feed/app boundaries unless the product intentionally works that way.
+These axes mean different things: `authors` is account scope, `feeds` is distribution scope, `apps`/`feeds.app` is app scope, and `tags` is classification. Use a tag filter as a substitute for account/feed/app boundaries only when the product is intentionally modeled that way.
 
 ### Confirming newly created entities
 
@@ -145,7 +145,7 @@ transactionStatus(client, {
 })
 ```
 
-For create flows, prefer re-reading the specific entity you just created, or polling the transaction indexing status, rather than sleeping for a fixed time and then taking the first item from a paginated list.
+For create flows, re-read the specific entity you just created or poll the transaction indexing status. Avoid fixed sleeps followed by taking the first item from a paginated list.
 
 ---
 
@@ -426,7 +426,7 @@ For create flows, prefer re-reading the specific entity you just created, or pol
 
 | Name | Description |
 |------|-------------|
-| `AdminsForQuery` | List admins for a primitive |
+| `AdminsForQuery` | List admins for a Lens entity |
 | `AddAdminsMutation` / `RemoveAdminsMutation` | Add/remove admins |
 
 ---
@@ -485,7 +485,7 @@ SuccessResponse                    — hash: TxHash (signless success)
 
 ### Rules System
 
-All primitives share consistent rule structure:
+Rule config uses the same outer structure across Lens entities:
 
 ```ts
 {

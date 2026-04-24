@@ -1,10 +1,10 @@
 # SDK Action Functions Reference
 
-`@lens-protocol/client/actions` — All 181 exported action functions.
+Quick lookup for the 181 exported functions in `@lens-protocol/client/actions`.
 
-**Convention**: Query functions accept `AnyClient` (PublicClient or SessionClient). Mutation functions require `SessionClient`. All return `ResultAsync<T, E>`.
+**Convention**: query functions accept `AnyClient` (PublicClient or SessionClient), while mutation functions require `SessionClient`. Functions return `ResultAsync<T, E>`.
 
-**Type abbreviations**: `UE` = UnexpectedError, `UAE` = UnauthenticatedError
+**Type abbreviations**: `UE` = UnexpectedError, `UAE` = UnauthenticatedError.
 
 ---
 

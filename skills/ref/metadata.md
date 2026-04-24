@@ -1,10 +1,10 @@
-# Metadata Types Reference
+# Metadata Reference
 
-`@lens-protocol/metadata` v2.1.0 — All metadata builder functions, types, and enums.
+Compact lookup for `@lens-protocol/metadata` v2.1.0 builders, types, and enums.
 
-All builder functions auto-set `$schema` and `id` (defaults to UUID). Branded types (`URI`, `Markdown`, `Tag`, `Locale`) accept plain strings at the builder level.
+Builder functions set `$schema` and `id` for you; `id` defaults to a UUID. Branded types such as `URI`, `Markdown`, `Tag`, and `Locale` can be passed as plain strings to the builders.
 
-Use `MetadataAttributeType.STRING | DATE | BOOLEAN | NUMBER | JSON` for `attributes[].type`; do not hand-write `"String"`-style literals.
+For `attributes[].type`, use `MetadataAttributeType.STRING | DATE | BOOLEAN | NUMBER | JSON` instead of hand-written `"String"`-style literals.
 
 ## Entity Metadata Builders
 
@@ -96,7 +96,7 @@ sponsorship({
 
 ## Post Content Builders
 
-All post builders share these optional fields:
+Most post builders accept these optional fields:
 
 ```ts
 {
@@ -264,11 +264,11 @@ transaction({
 
 ## Action / Rule Metadata Builders
 
-Use these when you are defining custom on-chain extensibility, not ordinary posts/accounts.
+Use these for custom on-chain extensibility, not for ordinary posts or account profiles.
 
 ### `action(options)`
 
-Builds metadata for a custom action contract. Include `name`, `description`, `authors`, `source`, and parameter descriptors for `configure` / `execute` when needed.
+Creates metadata for a custom action contract. Include `name`, `description`, `authors`, `source`, and parameter descriptors for `configure` / `execute` when the action needs them.
 
 ### Rule metadata builders
 
@@ -279,7 +279,7 @@ Builds metadata for a custom action contract. Include `name`, `description`, `au
 - `namespaceRule(options)`
 - `postRule(options)`
 
-These builders describe custom rule contracts and their parameter surfaces. Use them when your product deploys or integrates non-default rules and the agent needs to understand how rule params are encoded.
+These builders describe custom rule contracts and their parameter surfaces. Use them when the product deploys or integrates non-default rules and the implementation needs to encode rule params correctly.
 
 ### `checkingIn(options)`
 
@@ -404,7 +404,7 @@ threeD({
 
 ## MetadataAttribute Construction
 
-No helper function. Construct directly:
+There is no dedicated helper for attributes; construct them directly:
 
 ```ts
 const attr: MetadataAttribute = {
@@ -430,7 +430,7 @@ const attr: MetadataAttribute = {
 
 ## Rule Metadata Builders
 
-For custom rule smart contracts. All require `name`, `description`, `authors`, `source`, and process-specific `ContractKeyValuePairDescriptor[]` arrays.
+For custom rule smart contracts, each builder needs `name`, `description`, `authors`, `source`, and the process-specific `ContractKeyValuePairDescriptor[]` arrays.
 
 | Builder | Process Params |
 |---------|---------------|
