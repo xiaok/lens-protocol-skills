@@ -94,8 +94,9 @@ input FollowStatusRequest {
 }
 
 enum PostReferenceType {
-  COMMENT
-  QUOTE
+  COMMENT_ON
+  REPOST_OF
+  QUOTE_OF
 }
 
 input PostReferencesRequest {

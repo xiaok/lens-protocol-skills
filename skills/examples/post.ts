@@ -10,6 +10,7 @@ import {
   testnet,
   evmAddress,
   PostReferenceType,
+  PostReactionType,
   type SessionClient,
 } from "@lens-protocol/client";
 import {
@@ -414,13 +415,13 @@ async function reactToPost(sessionClient: SessionClient) {
   // Add upvote
   await addReaction(sessionClient, {
     post: "0x01-0x1d",
-    reaction: "UPVOTE",
+    reaction: PostReactionType.Upvote,
   });
 
   // Remove upvote
   await undoReaction(sessionClient, {
     post: "0x01-0x1d",
-    reaction: "UPVOTE",
+    reaction: PostReactionType.Upvote,
   });
 }
 

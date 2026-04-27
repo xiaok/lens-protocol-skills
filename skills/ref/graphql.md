@@ -62,13 +62,13 @@ The field name is `target`, not `account`.
 ```ts
 fetchPostReferences(client, {
   referencedPost: "0x01-0x1d",
-  referenceTypes: ["COMMENT"],
+  referenceTypes: ["COMMENT_ON"],
   // relevancyFilter?: ...
   // visibilityFilter?: ...
 })
 ```
 
-`referenceTypes` is required.
+`referenceTypes` is required. Use `COMMENT_ON` for comments, `REPOST_OF` for reposts, or `QUOTE_OF` for quotes.
 
 ### Update account follow rules
 
