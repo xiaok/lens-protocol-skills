@@ -110,6 +110,10 @@ async function demo() {
 // ============================================================
 // 4. Custom Post fragment example
 // ============================================================
+//
+// Note: GQL fragment name must match the GraphQL type ("Post", "Account", etc.)
+// because the SDK uses it to override the default fragment shape.
+// Use a descriptive JS variable name to avoid confusion.
 
 const MyPostFragment = graphql(`
   fragment Post on Post {

@@ -10,6 +10,7 @@ import {
   testnet,
   evmAddress,
   PostReferenceType,
+  type SessionClient,
 } from "@lens-protocol/client";
 import {
   post,
@@ -80,7 +81,7 @@ async function waitForTransactionToIndex(txHash: string, attempts = 20) {
 // 1. Create a Text-Only Post
 // ============================================================
 
-async function createTextPost(sessionClient: any, walletClient: any) {
+async function createTextPost(sessionClient: SessionClient, walletClient: any) {
   // Step 1: Build metadata
   const metadata = textOnly({
     content: "Hello Lens! This is my first post.",
@@ -110,7 +111,7 @@ async function createTextPost(sessionClient: any, walletClient: any) {
 // 2. Create an Image Post
 // ============================================================
 
-async function createImagePost(sessionClient: any, walletClient: any) {
+async function createImagePost(sessionClient: SessionClient, walletClient: any) {
   // First upload the image file to Grove
   const imageFile = new File([/* image bytes */], "photo.jpg", {
     type: "image/jpeg",
@@ -150,7 +151,7 @@ async function createImagePost(sessionClient: any, walletClient: any) {
 // 3. Create an Article Post
 // ============================================================
 
-async function createArticle(sessionClient: any, walletClient: any) {
+async function createArticle(sessionClient: SessionClient, walletClient: any) {
   const metadata = article({
     title: "Getting Started with Lens Protocol",
     content: "# Introduction\n\nLens Protocol is a decentralized social graph...",
@@ -185,7 +186,7 @@ async function createArticle(sessionClient: any, walletClient: any) {
 // 4. Create a Video Post
 // ============================================================
 
-async function createVideoPost(sessionClient: any, walletClient: any) {
+async function createVideoPost(sessionClient: SessionClient, walletClient: any) {
   const metadata = video({
     video: {
       item: "lens://uploaded-video-uri",
@@ -201,15 +202,22 @@ async function createVideoPost(sessionClient: any, walletClient: any) {
     acl: immutable(37111),
   });
 
-  await post(sessionClient, { contentUri })
+  const result = await post(sessionClient, { contentUri })
     .andThen(handleOperationWith(walletClient));
+
+  if (result.isErr()) {
+    console.error("Video post failed:", result.error);
+    return;
+  }
+
+  console.log("Video post created, tx:", result.value);
 }
 
 // ============================================================
 // 5. Comment on a Post
 // ============================================================
 
-async function commentOnPost(sessionClient: any, walletClient: any) {
+async function commentOnPost(sessionClient: SessionClient, walletClient: any) {
   const metadata = textOnly({
     content: "Great post! I totally agree.",
   });
@@ -222,7 +230,7 @@ async function commentOnPost(sessionClient: any, walletClient: any) {
   const result = await post(sessionClient, {
     contentUri,
     commentOn: {
-      post: "42", // the post slug or ID to comment on
+      post: "0x01-0x1d", // the post slug or ID to comment on
     },
   }).andThen(handleOperationWith(walletClient));
 
@@ -235,7 +243,7 @@ async function commentOnPost(sessionClient: any, walletClient: any) {
 // 6. Quote a Post
 // ============================================================
 
-async function quotePost(sessionClient: any, walletClient: any) {
+async function quotePost(sessionClient: SessionClient, walletClient: any) {
   const metadata = textOnly({
     content: "This is worth reading! Here's my take...",
   });
@@ -247,7 +255,7 @@ async function quotePost(sessionClient: any, walletClient: any) {
   const result = await post(sessionClient, {
     contentUri,
     quoteOf: {
-      post: "42", // the post slug or ID to quote
+      post: "0x01-0x1d", // the post slug or ID to quote
     },
   }).andThen(handleOperationWith(walletClient));
 }
@@ -256,9 +264,9 @@ async function quotePost(sessionClient: any, walletClient: any) {
 // 7. Repost (no new content, just reshare)
 // ============================================================
 
-async function repostPost(sessionClient: any, walletClient: any) {
+async function repostPost(sessionClient: SessionClient, walletClient: any) {
   const result = await repost(sessionClient, {
-    post: "42", // post slug or ID
+    post: "0x01-0x1d", // post slug or ID
   }).andThen(handleOperationWith(walletClient));
 
   if (result.isErr()) {
@@ -270,7 +278,7 @@ async function repostPost(sessionClient: any, walletClient: any) {
 // 8. Edit a Post
 // ============================================================
 
-async function editMyPost(sessionClient: any, walletClient: any) {
+async function editMyPost(sessionClient: SessionClient, walletClient: any) {
   // Build updated metadata
   const metadata = textOnly({
     content: "Updated: Hello Lens! This post has been edited.",
@@ -281,7 +289,7 @@ async function editMyPost(sessionClient: any, walletClient: any) {
   });
 
   const result = await editPost(sessionClient, {
-    post: "42", // post slug or ID
+    post: "0x01-0x1d", // post slug or ID
     contentUri,
   }).andThen(handleOperationWith(walletClient));
 
@@ -294,9 +302,9 @@ async function editMyPost(sessionClient: any, walletClient: any) {
 // 9. Delete a Post
 // ============================================================
 
-async function deleteMyPost(sessionClient: any, walletClient: any) {
+async function deleteMyPost(sessionClient: SessionClient, walletClient: any) {
   const result = await deletePost(sessionClient, {
-    post: "42",
+    post: "0x01-0x1d",
   }).andThen(handleOperationWith(walletClient));
 
   if (result.isErr()) {
@@ -310,7 +318,7 @@ async function deleteMyPost(sessionClient: any, walletClient: any) {
 
 async function getPost() {
   const result = await fetchPost(client, {
-    post: "42", // post slug or ID
+    post: "0x01-0x1d", // post slug or ID
   });
 
   if (result.isErr()) {
@@ -369,7 +377,7 @@ async function listPosts() {
 
 async function getComments() {
   const result = await fetchPostReferences(client, {
-    referencedPost: "42",
+    referencedPost: "0x01-0x1d",
     referenceTypes: [PostReferenceType.CommentOn],
   });
 
@@ -402,16 +410,16 @@ async function getTimeline() {
 // 14. Reactions (Upvote / Downvote)
 // ============================================================
 
-async function reactToPost(sessionClient: any) {
+async function reactToPost(sessionClient: SessionClient) {
   // Add upvote
   await addReaction(sessionClient, {
-    post: "42",
+    post: "0x01-0x1d",
     reaction: "UPVOTE",
   });
 
   // Remove upvote
   await undoReaction(sessionClient, {
-    post: "42",
+    post: "0x01-0x1d",
     reaction: "UPVOTE",
   });
 }
@@ -420,9 +428,9 @@ async function reactToPost(sessionClient: any) {
 // 15. Bookmarks
 // ============================================================
 
-async function manageBookmarks(sessionClient: any) {
+async function manageBookmarks(sessionClient: SessionClient) {
   // Bookmark a post
-  await bookmarkPost(sessionClient, { post: "42" });
+  await bookmarkPost(sessionClient, { post: "0x01-0x1d" });
 
   // Fetch bookmarked posts
   const result = await fetchPostBookmarks(sessionClient);
@@ -433,14 +441,14 @@ async function manageBookmarks(sessionClient: any) {
   }
 
   // Remove bookmark
-  await undoBookmarkPost(sessionClient, { post: "42" });
+  await undoBookmarkPost(sessionClient, { post: "0x01-0x1d" });
 }
 
 // ============================================================
 // 16. Hide / Unhide Replies
 // ============================================================
 
-async function manageReplies(sessionClient: any) {
+async function manageReplies(sessionClient: SessionClient) {
   // Hide a reply on your own post
   await hideReply(sessionClient, { post: "reply-slug-123" });
 
@@ -452,9 +460,9 @@ async function manageReplies(sessionClient: any) {
 // 17. Report a Post
 // ============================================================
 
-async function reportBadPost(sessionClient: any) {
+async function reportBadPost(sessionClient: SessionClient) {
   await reportPost(sessionClient, {
-    post: "42",
+    post: "0x01-0x1d",
     reason: "SPAM",
     // additionalComment: "This is spam",
   });

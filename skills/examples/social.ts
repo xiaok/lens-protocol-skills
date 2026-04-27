@@ -5,7 +5,7 @@
  * notifications, ML recommendations.
  */
 
-import { PublicClient, testnet, evmAddress } from "@lens-protocol/client";
+import { PublicClient, testnet, evmAddress, type SessionClient } from "@lens-protocol/client";
 import {
   // Follow
   follow,
@@ -48,7 +48,7 @@ const client = PublicClient.create({
 // 1. Follow an Account
 // ============================================================
 
-async function followAccount(sessionClient: any, walletClient: any) {
+async function followAccount(sessionClient: SessionClient, walletClient: any) {
   const result = await follow(sessionClient, {
     account: evmAddress("0xTARGET_ACCOUNT"),
   }).andThen(handleOperationWith(walletClient));
@@ -64,7 +64,7 @@ async function followAccount(sessionClient: any, walletClient: any) {
 // 2. Unfollow an Account
 // ============================================================
 
-async function unfollowAccount(sessionClient: any, walletClient: any) {
+async function unfollowAccount(sessionClient: SessionClient, walletClient: any) {
   const result = await unfollow(sessionClient, {
     account: evmAddress("0xTARGET_ACCOUNT"),
   }).andThen(handleOperationWith(walletClient));
@@ -104,6 +104,11 @@ async function getFollowData() {
     target: evmAddress("0xSOME_ACCOUNT"),
     observer: evmAddress("0xMY_ACCOUNT"),
   });
+  if (mutual.isOk()) {
+    for (const f of mutual.value.items) {
+      console.log("Mutual follower:", f.follower.address);
+    }
+  }
 
   // Check follow status between two accounts
   const status = await fetchFollowStatus(client, {
@@ -123,7 +128,7 @@ async function getFollowData() {
 // 4. Create a Group
 // ============================================================
 
-async function createNewGroup(sessionClient: any, walletClient: any) {
+async function createNewGroup(sessionClient: SessionClient, walletClient: any) {
   const storage = StorageClient.create();
 
   // Build group metadata
@@ -154,7 +159,7 @@ async function createNewGroup(sessionClient: any, walletClient: any) {
 // 5. Join / Leave a Group
 // ============================================================
 
-async function joinAndLeave(sessionClient: any, walletClient: any) {
+async function joinAndLeave(sessionClient: SessionClient, walletClient: any) {
   const groupAddress = evmAddress("0xGROUP_ADDRESS");
 
   // Join
@@ -209,7 +214,7 @@ async function getGroupInfo() {
 // 7. Group Membership Management (Admin)
 // ============================================================
 
-async function manageMembers(sessionClient: any, walletClient: any) {
+async function manageMembers(sessionClient: SessionClient, walletClient: any) {
   const groupAddress = evmAddress("0xGROUP_ADDRESS");
 
   // Approve pending membership requests
@@ -235,7 +240,7 @@ async function manageMembers(sessionClient: any, walletClient: any) {
 // 8. Fetch Notifications
 // ============================================================
 
-async function getNotifications(sessionClient: any) {
+async function getNotifications(sessionClient: SessionClient) {
   const result = await fetchNotifications(sessionClient);
 
   if (result.isErr()) {
@@ -300,7 +305,7 @@ async function getRecommendations() {
   }
 }
 
-async function dismissRecommendation(sessionClient: any) {
+async function dismissRecommendation(sessionClient: SessionClient) {
   await dismissRecommendedAccount(sessionClient, {
     accounts: [evmAddress("0xNOT_INTERESTED")],
   });

@@ -10,6 +10,7 @@ import {
   testnet,
   evmAddress,
   TokenStandard,
+  type SessionClient,
 } from "@lens-protocol/client";
 import {
   fetchAccount,
@@ -147,7 +148,7 @@ async function waitForAccountByUsername(localName: string, attempts = 20) {
 //   - Login as OnboardingUser role
 //   - Prepare account metadata JSON and upload to Grove
 
-async function createAccount(sessionClient: any, walletClient: any) {
+async function createAccount(sessionClient: SessionClient, walletClient: any) {
   const storage = StorageClient.create();
   const localName = `alice-${Date.now()}`;
 
@@ -185,7 +186,7 @@ async function createAccount(sessionClient: any, walletClient: any) {
 // 5. Update Account Metadata
 // ============================================================
 
-async function updateProfile(sessionClient: any, walletClient: any) {
+async function updateProfile(sessionClient: SessionClient, walletClient: any) {
   const storage = StorageClient.create();
 
   // Build updated metadata
@@ -230,7 +231,7 @@ async function updateProfile(sessionClient: any, walletClient: any) {
 // 6. Account Manager Operations
 // ============================================================
 
-async function manageManagers(sessionClient: any, walletClient: any) {
+async function manageManagers(sessionClient: SessionClient, walletClient: any) {
   // Add a manager
   const addResult = await addAccountManager(sessionClient, {
     address: evmAddress("0xMANAGER_ADDRESS"),
@@ -256,7 +257,7 @@ async function manageManagers(sessionClient: any, walletClient: any) {
 // 7. Block / Mute
 // ============================================================
 
-async function blockAndMute(sessionClient: any, walletClient: any) {
+async function blockAndMute(sessionClient: SessionClient, walletClient: any) {
   const target = evmAddress("0xSPAMMER");
 
   // Block (on-chain)
@@ -278,7 +279,7 @@ async function blockAndMute(sessionClient: any, walletClient: any) {
 // 8. Update Follow Rules
 // ============================================================
 
-async function setFollowRules(sessionClient: any, walletClient: any) {
+async function setFollowRules(sessionClient: SessionClient, walletClient: any) {
   const result = await updateAccountFollowRules(sessionClient, {
     // Example: require holding at least 1 ERC20 token to follow
     toAdd: {

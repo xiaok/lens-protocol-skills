@@ -2,7 +2,7 @@
 
 Compact lookup for Lens GraphQL operation names, request shapes, and key fragments.
 
-Many write mutations return a union such as `SuccessResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail | [DomainError]`. Lighter mutations may return `void` or a small response object.
+Many write mutations return a union such as `OperationResponse | SponsoredTransactionRequest | SelfFundedTransactionRequest | TransactionWillFail | [DomainError]`. Lighter mutations may return `void` or a small response object.
 
 Paginated queries return `{ items: T[], pageInfo: { prev: Cursor | null, next: Cursor | null } }`.
 
@@ -61,7 +61,7 @@ The field name is `target`, not `account`.
 
 ```ts
 fetchPostReferences(client, {
-  referencedPost: "42",
+  referencedPost: "0x01-0x1d",
   referenceTypes: ["COMMENT"],
   // relevancyFilter?: ...
   // visibilityFilter?: ...
@@ -460,7 +460,7 @@ For create flows, re-read the specific entity you just created or poll the trans
 ### Mutation Result Union
 
 ```
-SuccessResponse                    — hash: TxHash (signless success)
+OperationResponse                 — hash: TxHash (signless success, previously called "SuccessResponse")
 | SponsoredTransactionRequest      — EIP-712 tx (gas sponsored)
 | SelfFundedTransactionRequest     — EIP-1559 tx (user pays gas)
 | TransactionWillFail              — reason string (pre-flight failure)

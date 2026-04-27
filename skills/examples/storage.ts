@@ -18,6 +18,7 @@ import {
   lensAccountOnly,
   walletOnly,
 } from "@lens-chain/storage-client";
+import type { SessionClient } from "@lens-protocol/client";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { chains } from "@lens-chain/sdk/viem";
@@ -243,7 +244,7 @@ import { image, MediaImageMimeType } from "@lens-protocol/metadata";
 import { post } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
 
-async function fullImagePostWorkflow(sessionClient: any, walletClient: any) {
+async function fullImagePostWorkflow(sessionClient: SessionClient, walletClient: any) {
   // 1. Upload image to Grove
   const imageFile = new File([/* bytes */], "photo.png", { type: "image/png" });
   const imageUpload = await storage.uploadFile(imageFile, {

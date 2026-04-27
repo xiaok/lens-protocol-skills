@@ -11,7 +11,7 @@
  *   4. Builder — app-level authentication (no account needed)
  */
 
-import { PublicClient, testnet, evmAddress } from "@lens-protocol/client";
+import { PublicClient, testnet, evmAddress, type SessionClient } from "@lens-protocol/client";
 import { handleOperationWith, signMessageWith } from "@lens-protocol/client/viem";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -149,7 +149,7 @@ async function resumeSession() {
 
 import { currentSession, fetchMeDetails } from "@lens-protocol/client/actions";
 
-async function getSessionInfo(sessionClient: any) {
+async function getSessionInfo(sessionClient: SessionClient) {
   // Get current session metadata
   const session = await currentSession(sessionClient);
   if (session.isOk()) {
@@ -172,7 +172,7 @@ async function getSessionInfo(sessionClient: any) {
 
 import { switchAccount } from "@lens-protocol/client/actions";
 
-async function switchToAnotherAccount(sessionClient: any) {
+async function switchToAnotherAccount(sessionClient: SessionClient) {
   const result = await switchAccount(sessionClient, {
     account: evmAddress("0xANOTHER_ACCOUNT"),
   });
@@ -191,7 +191,7 @@ async function switchToAnotherAccount(sessionClient: any) {
 
 import { revokeAuthentication } from "@lens-protocol/client/actions";
 
-async function logout(sessionClient: any) {
+async function logout(sessionClient: SessionClient) {
   const session = await currentSession(sessionClient);
   if (session.isErr()) return;
 
@@ -210,7 +210,7 @@ async function logout(sessionClient: any) {
 
 import { enableSignless } from "@lens-protocol/client/actions";
 
-async function enableSignlessMode(sessionClient: any) {
+async function enableSignlessMode(sessionClient: SessionClient) {
   const result = await enableSignless(sessionClient)
     .andThen(handleOperationWith(walletClient));
 

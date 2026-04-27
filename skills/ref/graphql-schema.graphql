@@ -291,14 +291,32 @@ type OperationResponse {
   hash: TxHash!
 }
 
+# EIP-712 typed data that must be signed via wallet and submitted via handleOperationWith
 type SponsoredTransactionRequest {
   reason: String!
+  typedData: Eip712TypedData!
 }
 
+# Raw unsigned EIP-1559 transaction that the user must sign and submit
 type SelfFundedTransactionRequest {
   reason: String!
+  raw: String!
 }
 
 type TransactionWillFail {
   reason: String!
 }
+
+type Eip712TypedData {
+  domain: [AnyKeyValue!]!
+  types: [AnyKeyValue!]!
+  message: [AnyKeyValue!]!
+  primaryType: String!
+}
+
+type AnyKeyValue {
+  key: String!
+  value: JSON!
+}
+
+scalar JSON
