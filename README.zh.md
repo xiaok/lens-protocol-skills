@@ -4,6 +4,8 @@
 
 为 AI Agent 打造的 Lens Protocol 社交应用知识库 & 代码技能包。
 
+> [English](./README.md) | [日本語版](./README.ja.md)
+
 ## 这是什么？
 
 一个**结构化的 AI Agent 知识库**，为 Cursor、opencode、Claude 等 AI 编程助手提供在 Lens Protocol 生态上构建社交应用所需的全部知识和代码示例。Agent 无需翻阅散落的文档，只需引用这个集中的技能包，即可生成可直接运行的社交应用代码。
@@ -44,6 +46,7 @@
 │       ├── graphql.md           # GraphQL 查询/变更模式
 │       ├── graphql-schema.graphql # Schema 快照
 │       └── metadata.md          # Metadata 构建器 & Schema 选择
+├── README.ja.md                 # 日文版
 ├── README.md                    # 英文版
 ├── llms.txt                     # 压缩后的全量知识库
 └── package.json

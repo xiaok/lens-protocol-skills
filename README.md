@@ -4,7 +4,7 @@
 
 A structured knowledge base and code skill pack designed for AI agents (Cursor, opencode, Claude, etc.) to rapidly build social applications on the [Lens Protocol](https://www.lens.xyz/) ecosystem.
 
-> [中文版](./README.zh.md)
+> [中文版](./README.zh.md) | [日本語版](./README.ja.md)
 
 ## What Can You Build?
 
@@ -42,6 +42,7 @@ With Lens Protocol as the decentralized backbone, you can build **any kind of so
 │       ├── graphql.md           # GraphQL query/mutation patterns
 │       ├── graphql-schema.graphql # Schema snapshot for quick lookup
 │       └── metadata.md          # Metadata builder & schema selection
+├── README.ja.md                 # Japanese version
 ├── README.zh.md                 # Chinese version
 ├── llms.txt                     # Packed codebase for LLM consumption
 └── package.json
