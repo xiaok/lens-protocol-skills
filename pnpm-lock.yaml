@@ -12,16 +12,16 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3(viem@2.47.10(typescript@6.0.2)(zod@3.25.76))
       '@lens-chain/storage-client':
-        specifier: latest
+        specifier: 1.0.6
         version: 1.0.6
       '@lens-protocol/client':
-        specifier: latest
+        specifier: 0.0.0-canary-20250430134539
         version: 0.0.0-canary-20250430134539(@lens-chain/sdk@1.0.3(viem@2.47.10(typescript@6.0.2)(zod@3.25.76)))(typescript@6.0.2)(viem@2.47.10(typescript@6.0.2)(zod@3.25.76))
       '@lens-protocol/metadata':
-        specifier: latest
+        specifier: 2.1.0
         version: 2.1.0(typescript@6.0.2)(zod@3.25.76)
       viem:
-        specifier: ^2.23.2
+        specifier: ^2.47.10
         version: 2.47.10(typescript@6.0.2)(zod@3.25.76)
     devDependencies:
       '@types/node':

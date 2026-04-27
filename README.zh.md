@@ -1,5 +1,7 @@
 # Lens Protocol Skills
 
+![Lens Protocol Skills](./banner.png)
+
 为 AI Agent 打造的 Lens Protocol 社交应用知识库 & 代码技能包。
 
 ## 这是什么？

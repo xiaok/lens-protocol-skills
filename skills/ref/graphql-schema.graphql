@@ -159,7 +159,8 @@ input TokenGatedRuleInput {
 
 input SimplePaymentRuleInput {
   recipient: EvmAddress!
-  cost: FungibleAmountInput!
+  erc20: FungibleAmountInput
+  native: BigDecimal
 }
 
 input FungibleAmountInput {
@@ -292,27 +293,58 @@ type OperationResponse {
   hash: TxHash!
 }
 
-# EIP-712 typed data that must be signed via wallet and submitted via handleOperationWith
+# EIP-712 transaction request that must be signed via wallet and submitted via handleOperationWith
 type SponsoredTransactionRequest {
   reason: String!
-  typedData: Eip712TypedData!
+  sponsoredReason: SponsoredTransactionRequestReason!
+  raw: Eip712TransactionRequest!
 }
 
 # Raw unsigned EIP-1559 transaction that the user must sign and submit
 type SelfFundedTransactionRequest {
   reason: String!
-  raw: String!
+  selfFundedReason: SelfFundedTransactionRequestReason!
+  raw: Eip712TransactionRequest!
 }
 
 type TransactionWillFail {
   reason: String!
 }
 
-type Eip712TypedData {
-  domain: [AnyKeyValue!]!
-  types: [AnyKeyValue!]!
-  message: [AnyKeyValue!]!
-  primaryType: String!
+enum SponsoredTransactionRequestReason {
+  SIGNLESS_DISABLED
+  SIGNLESS_FAILED
+}
+
+enum SelfFundedTransactionRequestReason {
+  NOT_SPONSORED
+  CANNOT_SPONSOR
+}
+
+type Eip712TransactionRequest {
+  type: String!
+  to: EvmAddress!
+  from: EvmAddress!
+  nonce: Int!
+  gasLimit: String!
+  maxPriorityFeePerGas: String!
+  maxFeePerGas: String!
+  data: String!
+  value: String!
+  chainId: Int!
+  customData: Eip712TransactionCustomData
+}
+
+type Eip712TransactionCustomData {
+  gasPerPubdata: String
+  factoryDeps: [String!]
+  customSignature: String
+  paymasterParams: PaymasterParams
+}
+
+type PaymasterParams {
+  paymaster: EvmAddress!
+  paymasterInput: String!
 }
 
 type AnyKeyValue {

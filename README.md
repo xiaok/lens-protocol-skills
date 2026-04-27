@@ -1,5 +1,7 @@
 # Lens Protocol Skills
 
+![Lens Protocol Skills](./banner.png)
+
 A structured knowledge base and code skill pack designed for AI agents (Cursor, opencode, Claude, etc.) to rapidly build social applications on the [Lens Protocol](https://www.lens.xyz/) ecosystem.
 
 > [中文版](./README.zh.md)
